@@ -6,12 +6,26 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
+  constructor(private userService: UserService){}
   @Get()
   getUser() {
-    return [1, 2, 3, 4, 5];
+    const user = [
+      {
+        name: 'John Mackin',
+        username: 'johnMK',
+        password: '********'
+      },
+      {
+        name: 'Khone Papa',
+        username: 'johnMK',
+        password: '123456789'
+      }
+    ]
+    return this.userService.getUser(user);
   }
 
   @Get('/id')
@@ -30,7 +44,7 @@ export class UserController {
 
   @Delete('/:id')
   deleteUser(@Param('id') id: string) {
-    return 'Hello';
+    return `The ID is ${id}`;
   }
   
 }
