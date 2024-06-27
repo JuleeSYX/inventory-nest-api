@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Unit } from 'src/pages/units/schemas/unit.schema';
-
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 export type ProductDocument = Product & Document;
 
 @Schema()
@@ -41,5 +40,4 @@ export class Product {
   @Prop({ default: new Date().toISOString() })
   updatedAt?: Date;
 }
-
-export const ProductSchema = SchemaFactory.createForClass(Product);
+export const ProductSchema = SchemaFactory.createForClass(Product).plugin(mongoosePaginate);

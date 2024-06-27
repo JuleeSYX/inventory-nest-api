@@ -1,14 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Query } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './schemas/product.schema';
-import { Model, Types } from 'mongoose';
+import { Model, PaginateModel, PaginateOptions, PaginateResult, Types } from 'mongoose';
 import { generateUid } from 'src/shared/generate-uid';
 
 @Injectable()
 export class ProductsService {
-  constructor(@InjectModel(Product.name) private productModel: Model<ProductDocument>){}
+  constructor(@InjectModel(Product.name) private productModel: Model<ProductDocument>, @InjectModel(Product.name) private paginateModel: PaginateModel<ProductDocument>){}
   async create(createProductDto: CreateProductDto): Promise<Product> {
     const { 
       name,
@@ -45,7 +45,7 @@ export class ProductsService {
     return result.save();
   }
 
-  async findAll(search: string, pagination: any): Promise<Product[]> {
+  async findAll(search: string, sort: string, page: number, limit: number): Promise<any> {
     const result = this.productModel.aggregate(
       [
         {
@@ -91,11 +91,23 @@ export class ProductsService {
         }
       ]
     )
-    return pagination
-    // return this.productModel.find().populate(['unit', 'categorie', {
-    //   path: 'brand',
-    //   match: {name:{$regex: new RegExp(brandName, 'i')}},
-    // }]).exec();
+
+    const query = {
+      $or:[
+        {name: { $regex: new RegExp(search, 'i') }},
+      ]
+    }
+    
+    return this.paginateModel.paginate(query , {
+      page: page,
+      limit: limit,
+      sort: { _id: sort },
+      populate: [
+        { path: 'brand', select: ['name', 'createdAt'] },
+        { path: 'categorie', select: 'name' },
+        { path: 'unit', select: 'name' }
+      ],
+    });
   }
 
   async findOne(id: string): Promise<Product> {

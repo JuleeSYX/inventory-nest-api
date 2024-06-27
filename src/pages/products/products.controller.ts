@@ -19,12 +19,12 @@ export class ProductsController {
   @ApiQuery({ name: 'page', required: false, description: `Default value is 1` })
   @ApiQuery({ name: 'limit', required: false, description: `Default value is 20` })
   findAll(
-    @Query('search') search: string,
+    @Query('search', new DefaultValuePipe('')) search: string,
     @Query('sort', new DefaultValuePipe('asc')) sort: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number
   ) {
-    return this.productsService.findAll(search, {sort, page, limit});
+    return this.productsService.findAll(search, sort, page, limit);
   }
 
   @Get(':id')
